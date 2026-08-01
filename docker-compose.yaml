@@ -1,0 +1,17 @@
+services:
+  bsky-producer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: firehose
+    restart: unless-stopped
+    networks:
+      - maverick
+    environment:
+      - BSKY_RELAY=bsky.network
+      - BSKY_NATS=nats-server:4222
+networks:
+  maverick:
+    external: true
+
+
