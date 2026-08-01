@@ -9,7 +9,10 @@ services:
       - maverick
     environment:
       - BSKY_RELAY=bsky.network
-      - BSKY_NATS=nats-server:4222
+      - BSKY_NATS_SERVER=nats-server:4222
+      - BSKY_NATS_STREAM_NAME=bsky
+      - BSKY_NATS_MAX_STREAM_MSG=500000
+      - BSKY_METRICS_PORT=9090
 networks:
   maverick:
     external: true

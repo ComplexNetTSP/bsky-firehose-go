@@ -32,17 +32,17 @@ func NewCmdFlags() *CmdFlags {
 		cf.Relay = envRelay
 	}
 
-	if envStream := os.Getenv("NATS_STREAM_NAME"); envStream != "" {
+	if envStream := os.Getenv("BSKY_NATS_STREAM_NAME"); envStream != "" {
 		cf.StreamName = envStream
 	}
 
-	if envStream := os.Getenv("NATS_MAX_STREAM_MSG"); envStream != "" {
+	if envStream := os.Getenv("BSKY_NATS_MAX_STREAM_MSG"); envStream != "" {
 		if maxStreamMsg, err := strconv.ParseInt(envStream, 10, 64); err == nil {
 			cf.MaxStreamMsg = maxStreamMsg
 		}
 	}
 
-	if envNats := os.Getenv("BSKY_NATS"); envNats != "" {
+	if envNats := os.Getenv("BSKY_NATS_SERVER"); envNats != "" {
 		cf.NatsUrl = envNats
 	}
 
@@ -52,7 +52,7 @@ func NewCmdFlags() *CmdFlags {
 		}
 	}
 
-	if envMetricsPort := os.Getenv("METRICS_PORT"); envMetricsPort != "" {
+	if envMetricsPort := os.Getenv("BSKY_METRICS_PORT"); envMetricsPort != "" {
 		cf.MetricsPort = envMetricsPort
 	}
 

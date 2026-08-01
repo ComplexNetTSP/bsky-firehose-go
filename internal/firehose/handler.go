@@ -160,7 +160,7 @@ func (bmh *BskyMessageHandler) sendNatsMessage(ctx context.Context, msg BskyMess
 		return err
 	}
 
-	slog.Info("Message", "msg", jsonData)
+	slog.Debug("Message", "msg", jsonData)
 
 	if err != nil {
 		slog.Error("failed to get record type", "error", err)
