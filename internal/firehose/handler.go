@@ -16,7 +16,8 @@ import (
 )
 
 type BskyMessageHandler struct {
-	stream *nats.Stream
+	stream                     *nats.Stream
+	startProcessingMessageTime time.Time
 }
 
 func NewBskyMessageHandler(stream *nats.Stream) *BskyMessageHandler {
@@ -94,6 +95,8 @@ func (bmh *BskyMessageHandler) buildMessage(evt *comatproto.SyncSubscribeRepos_C
 func (bmh *BskyMessageHandler) HandleCommit(ctx context.Context, evt *comatproto.SyncSubscribeRepos_Commit) error {
 	// Increment received messages counter
 	metrics.MessagesReceived.WithLabelValues("commit").Inc()
+	// record the start date when received message message
+	bmh.startProcessingMessageTime = time.Now()
 
 	// Update current sequence gauge
 	metrics.CurrentSequence.Set(float64(evt.Seq))
@@ -163,12 +166,11 @@ func (bmh *BskyMessageHandler) sendNatsMessage(ctx context.Context, msg BskyMess
 	slog.Debug("Message", "msg", jsonData)
 
 	if subject, ok := subjectMap[recordType]; ok {
-		startTime := time.Now()
 		if err = bmh.stream.Publish(ctx, subject, []byte(jsonData)); err != nil {
 			metrics.PublishErrors.WithLabelValues(subject).Inc()
 			return err
 		}
-		metrics.NATSPublishTime.Observe(time.Since(startTime).Seconds())
+		metrics.NATSPublishTime.Observe(float64(time.Since(bmh.startProcessingMessageTime).Microseconds()))
 		metrics.MessagesPublished.WithLabelValues(subject).Inc()
 	}
 	return nil

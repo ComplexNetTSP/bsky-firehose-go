@@ -113,9 +113,9 @@ var (
 	NATSPublishTime = prometheus.NewHistogram(
 		prometheus.HistogramOpts{
 			Namespace: namespace,
-			Name:      "nats_publish_seconds",
-			Help:      "Time taken to publish a message to NATS",
-			Buckets:   []float64{0.001, 0.002, 0.004, 0.006, 0.008, 0.01, 0.02, 0.04, 0.1, 0.5, 1},
+			Name:      "process_message_microseconds",
+			Help:      "Time taken to process a message and send it to NATS",
+			Buckets:   []float64{10, 20, 50, 100, 200, 300, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 20000, 30000, 40000, 50000, 60000, 100000, 200000, 300000, 400000, 500000},
 		},
 	)
 
