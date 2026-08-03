@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: firehose
     restart: unless-stopped
+    ports:
+      - 9090:9090
     networks:
       - maverick
     environment:

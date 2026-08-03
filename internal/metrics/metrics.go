@@ -115,7 +115,7 @@ var (
 			Namespace: namespace,
 			Name:      "nats_publish_seconds",
 			Help:      "Time taken to publish a message to NATS",
-			Buckets:   prometheus.DefBuckets,
+			Buckets:   []float64{0.001, 0.002, 0.004, 0.006, 0.008, 0.01, 0.02, 0.04, 0.1, 0.5, 1},
 		},
 	)
 
@@ -154,5 +154,5 @@ func StartServer(port string) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
-	go http.ListenAndServe(":"+port, nil)
+	go http.ListenAndServe("0.0.0.0:"+port, nil)
 }

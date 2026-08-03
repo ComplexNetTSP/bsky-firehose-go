@@ -52,12 +52,12 @@ func (bmh *BskyMessageHandler) readRepoFromCar(ctx context.Context, blocks []byt
 func (bmh *BskyMessageHandler) getRecordJSON(ctx context.Context, r *repo.Repo, path string) (json.RawMessage, error) {
 	_, rec, err := r.GetRecord(ctx, path)
 	if err != nil {
-		slog.Warn("failed unmarsh from cbor", "path", path, "error", err)
+		slog.Debug("failed get record from cbor", "path", path, "error", err)
 		return nil, err
 	}
 	recJSON, err := json.Marshal(rec)
 	if err != nil {
-		slog.Warn("failed to marshal record to JSON", "path", path, "error", err)
+		slog.Debug("failed to marshal record to JSON", "path", path, "error", err)
 		return nil, err
 	}
 	return json.RawMessage(recJSON), nil
@@ -109,7 +109,7 @@ func (bmh *BskyMessageHandler) HandleCommit(ctx context.Context, evt *comatproto
 			record, err := bmh.getRecordJSON(ctx, r, op.Path)
 			if err != nil {
 				metrics.ProcessingErrors.WithLabelValues("record_get").Inc()
-				slog.Warn("failed to get record JSON", "path", op.Path, "error", err)
+				slog.Debug("failed to get record JSON", "path", op.Path, "error", err)
 				continue
 			}
 			op_parsed := bmh.opFromCommitOp(op)
