@@ -114,7 +114,8 @@ func (fc *FirehoseConnection) start(ctx context.Context) error {
 func (fc *FirehoseConnection) Run(ctx context.Context) error {
 	backoff := time.Second
 	maxBackoff := 15 * time.Minute
-
+	lastConnection := time.Now()
+	backoffResetDurection := 3 * maxBackoff
 	// Loop to handle reconnections
 	for {
 		uri := fc.buildUrl(ctx) // Update URL with current cursor
@@ -143,12 +144,17 @@ func (fc *FirehoseConnection) Run(ctx context.Context) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-time.After(backoff):
-			if backoff < maxBackoff {
+			if time.Since(lastConnection) > backoffResetDurection {
+				// reset backoff if the since last reconnect is large enough
+				backoff = time.Second
+			} else if backoff < maxBackoff {
+				// if time since last reconnect small execute backoff
 				backoff *= 2
-				if backoff > maxBackoff {
-					backoff = maxBackoff
-				}
+			} else {
+				// avoid having too large backoff
+				backoff = maxBackoff
 			}
+			lastConnection = time.Now()
 			slog.Info("retrying websocket connection", "backoff", backoff)
 		}
 	}
