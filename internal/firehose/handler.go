@@ -162,11 +162,6 @@ func (bmh *BskyMessageHandler) sendNatsMessage(ctx context.Context, msg BskyMess
 
 	slog.Debug("Message", "msg", jsonData)
 
-	if err != nil {
-		slog.Error("failed to get record type", "error", err)
-		metrics.ProcessingErrors.WithLabelValues("record_type_extract").Inc()
-		return err
-	}
 	if subject, ok := subjectMap[recordType]; ok {
 		startTime := time.Now()
 		if err = bmh.stream.Publish(ctx, subject, []byte(jsonData)); err != nil {
