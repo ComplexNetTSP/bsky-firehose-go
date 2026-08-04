@@ -8,6 +8,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
+	"github.com/vgauthier/bsky-firehose/internal/logger"
 	"github.com/vgauthier/bsky-firehose/internal/metrics"
 )
 
@@ -18,6 +19,7 @@ type Stream struct {
 	nc           *nats.Conn // NATS connection
 	StreamName   string
 	maxStreamMsg int64
+	logger       *slog.Logger
 }
 
 func NewStream(natsUrl string, streamName string, maxStreamMsg int64) *Stream {
@@ -25,6 +27,7 @@ func NewStream(natsUrl string, streamName string, maxStreamMsg int64) *Stream {
 		nats_server:  natsUrl,
 		StreamName:   streamName,
 		maxStreamMsg: maxStreamMsg,
+		logger:       logger.GetLogger(),
 	}
 }
 
@@ -100,7 +103,7 @@ func (s *Stream) setupSubscribers(ctx context.Context) error {
 }
 
 func (s *Stream) Close() {
-	slog.Warn("closing nats stream and connection")
+	s.logger.Warn("closing nats stream and connection")
 	metrics.NATSConnectionStatus.Set(0)
 	s.nc.Close()
 }
@@ -110,7 +113,7 @@ func (s *Stream) Publish(ctx context.Context, subject string, data []byte) error
 	defer func() {
 		metrics.NATSPublishTime.Observe(time.Since(startTime).Seconds())
 	}()
-	
+
 	if s.nc.Status() != nats.CONNECTED {
 		metrics.NATSConnectionStatus.Set(0)
 		return fmt.Errorf("nats connection is not connected, status: %v", s.nc.Status())

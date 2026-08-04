@@ -3,24 +3,26 @@ package main
 import (
 	"context"
 	"log"
-	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 
 	firehose "github.com/vgauthier/bsky-firehose/internal/firehose"
+	"github.com/vgauthier/bsky-firehose/internal/logger"
 	"github.com/vgauthier/bsky-firehose/internal/metrics"
 	"github.com/vgauthier/bsky-firehose/internal/nats"
 )
 
 func main() {
+	// fetch the logger
+	logger := logger.GetLogger()
 	// fetch flags
 	cf := NewCmdFlags()
 
 	// initialize metrics
 	metrics.Init()
 	metrics.StartServer(cf.MetricsPort)
-	slog.Info("Prometheus metrics server started", "port", cf.MetricsPort)
+	logger.Info("Prometheus metrics server started", "port", cf.MetricsPort)
 
 	// create context
 	ctx, cancel := context.WithCancel(context.Background())
@@ -30,7 +32,7 @@ func main() {
 	natsStream := nats.NewStream(cf.NatsUrl, cf.StreamName, cf.MaxStreamMsg)
 	err := natsStream.Connect(ctx)
 	if err != nil {
-		slog.Error("failed to connect to nats server", "error", err)
+		logger.Error("failed to connect to nats server", "error", err)
 		log.Fatal(err)
 	}
 	defer natsStream.Close()
@@ -43,13 +45,13 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigChan
-		slog.Info("shutting down...")
+		logger.Info("shutting down...")
 		cancel()
 	}()
 
 	fc := firehose.NewFirehoseConnection(ctx, cf.Relay, handler, cf.NatsUrl, cf.StreamName, cf.Cursor)
 	if err := fc.Run(ctx); err != nil {
-		slog.Error("firehose connection failed", "error", err)
+		logger.Error("firehose connection failed", "error", err)
 		log.Fatal(err)
 	}
 }
