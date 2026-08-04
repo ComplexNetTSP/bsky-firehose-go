@@ -14,6 +14,11 @@ RUN go build -o main ./cmd/bsky-firehose
 #### FINAL STAGE
 # Use a minimal base image for final deployment
 FROM alpine:latest
+
+# Install only the Europe/Paris time zone
+# Install tzdata (required for time zone support in Alpine)
+RUN apk add --no-cache tzdata
+
 # Set working directory in the container
 WORKDIR /root/
 # Copy the built binary from the builder stage

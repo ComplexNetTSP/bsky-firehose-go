@@ -15,6 +15,10 @@ services:
       - BSKY_NATS_STREAM_NAME=bsky
       - BSKY_NATS_MAX_STREAM_MSG=500000
       - BSKY_METRICS_PORT=9090
+      - TZ=Europe/Paris
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 networks:
   maverick:
     external: true
