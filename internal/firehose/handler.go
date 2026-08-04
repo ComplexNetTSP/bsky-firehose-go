@@ -11,7 +11,6 @@ import (
 
 	comatproto "github.com/bluesky-social/indigo/api/atproto"
 	"github.com/bluesky-social/indigo/repo"
-	"github.com/vgauthier/bsky-firehose/internal/logger"
 	"github.com/vgauthier/bsky-firehose/internal/metrics"
 	"github.com/vgauthier/bsky-firehose/internal/nats"
 )
@@ -19,14 +18,12 @@ import (
 type BskyMessageHandler struct {
 	stream                     *nats.Stream
 	startProcessingMessageTime time.Time
-	logger                     *slog.Logger
 }
 
 func NewBskyMessageHandler(stream *nats.Stream) *BskyMessageHandler {
 	// fetch the logger
 	return &BskyMessageHandler{
 		stream: stream,
-		logger: logger.GetLogger(),
 	}
 }
 
@@ -47,7 +44,7 @@ func (bmh *BskyMessageHandler) opFromCommitOp(op *comatproto.SyncSubscribeRepos_
 func (bmh *BskyMessageHandler) readRepoFromCar(ctx context.Context, blocks []byte) (*repo.Repo, error) {
 	r, err := repo.ReadRepoFromCar(ctx, bytes.NewReader(blocks))
 	if err != nil {
-		bmh.logger.Error("failed to read CAR blocks", "error", err)
+		slog.Error("failed to read CAR blocks", "error", err)
 		return nil, err
 	}
 	return r, nil
@@ -57,12 +54,12 @@ func (bmh *BskyMessageHandler) readRepoFromCar(ctx context.Context, blocks []byt
 func (bmh *BskyMessageHandler) getRecordJSON(ctx context.Context, r *repo.Repo, path string) (json.RawMessage, error) {
 	_, rec, err := r.GetRecord(ctx, path)
 	if err != nil {
-		bmh.logger.Debug("failed get record from cbor", "path", path, "error", err)
+		slog.Debug("failed get record from cbor", "path", path, "error", err)
 		return nil, err
 	}
 	recJSON, err := json.Marshal(rec)
 	if err != nil {
-		bmh.logger.Debug("failed to marshal record to JSON", "path", path, "error", err)
+		slog.Debug("failed to marshal record to JSON", "path", path, "error", err)
 		return nil, err
 	}
 	return json.RawMessage(recJSON), nil
@@ -116,7 +113,7 @@ func (bmh *BskyMessageHandler) HandleCommit(ctx context.Context, evt *comatproto
 			record, err := bmh.getRecordJSON(ctx, r, op.Path)
 			if err != nil {
 				metrics.ProcessingErrors.WithLabelValues("record_get").Inc()
-				bmh.logger.Debug("failed to get record JSON", "path", op.Path, "error", err)
+				slog.Debug("failed to get record JSON", "path", op.Path, "error", err)
 				continue
 			}
 			op_parsed := bmh.opFromCommitOp(op)
@@ -126,13 +123,13 @@ func (bmh *BskyMessageHandler) HandleCommit(ctx context.Context, evt *comatproto
 			recordType, err := bmh.getRecordType(op_parsed)
 			if err != nil {
 				metrics.ProcessingErrors.WithLabelValues("record_type_extract").Inc()
-				bmh.logger.Error("failed to get record type", "error", err)
+				slog.Error("failed to get record type", "error", err)
 				continue
 			}
 
 			if err := bmh.sendNatsMessage(ctx, msg, recordType); err != nil {
 				metrics.ProcessingErrors.WithLabelValues("nats_publish").Inc()
-				bmh.logger.Error("failed to send NATS message", "error", err)
+				slog.Error("failed to send NATS message", "error", err)
 			} else {
 				metrics.MessagesProcessed.WithLabelValues(recordType).Inc()
 			}
@@ -162,12 +159,12 @@ func (bmh *BskyMessageHandler) sendNatsMessage(ctx context.Context, msg BskyMess
 
 	jsonData, err := json.Marshal(msg)
 	if err != nil {
-		bmh.logger.Error("unable to marshal bluesky message", "error", err)
+		slog.Error("unable to marshal bluesky message", "error", err)
 		metrics.ProcessingErrors.WithLabelValues("marshal").Inc()
 		return err
 	}
 
-	bmh.logger.Debug("Message", "msg", jsonData)
+	slog.Debug("Message", "msg", jsonData)
 
 	if subject, ok := subjectMap[recordType]; ok {
 		if err = bmh.stream.Publish(ctx, subject, []byte(jsonData)); err != nil {
