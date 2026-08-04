@@ -21,7 +21,6 @@ type BskyMessageHandler struct {
 }
 
 func NewBskyMessageHandler(stream *nats.Stream) *BskyMessageHandler {
-	// fetch the logger
 	return &BskyMessageHandler{
 		stream: stream,
 	}

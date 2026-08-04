@@ -10,7 +10,7 @@ services:
     networks:
       - maverick
     environment:
-      - BSKY_RELAY=bsky.network
+      - BSKY_RELAY=relay1.us-east.bsky.network
       - BSKY_NATS_SERVER=nats-server:4222
       - BSKY_NATS_STREAM_NAME=bsky
       - BSKY_NATS_MAX_STREAM_MSG=500000
