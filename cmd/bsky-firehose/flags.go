@@ -22,7 +22,7 @@ func NewCmdFlags() *CmdFlags {
 		Relay:        "bsky.network",
 		Cursor:       0,
 		NatsUrl:      "localhost:4222",
-		StreamName:   "bskt_test",
+		StreamName:   "bsky_test",
 		MaxStreamMsg: 100000,
 		MetricsPort:  "9090",
 	}

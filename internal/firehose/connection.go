@@ -42,8 +42,9 @@ func NewFirehoseConnection(ctx context.Context, bskyUrl string, handler *BskyMes
 func (fc *FirehoseConnection) connect(ctx context.Context, uri string) error {
 
 	slog.Info("dialing", "url", uri)
-
-	conn, _, err := websocket.DefaultDialer.DialContext(ctx, uri, http.Header{})
+	timeoutCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+	conn, _, err := websocket.DefaultDialer.DialContext(timeoutCtx, uri, http.Header{})
 	if err != nil {
 		metrics.WebSocketConnectionStatus.Set(0)
 		return fmt.Errorf("websocket dial failed: %w", err)
@@ -121,11 +122,16 @@ func (fc *FirehoseConnection) Run(ctx context.Context) error {
 		uri := fc.buildUrl(ctx) // Update URL with current cursor
 
 		// Connect
-		if err := fc.connect(ctx, uri); err != nil {
+		timeoutCtx, timeoutCtxCancel := context.WithTimeout(ctx, 1*time.Second)
+		err := fc.connect(timeoutCtx, uri)
+		timeoutCtxCancel()
+		if err != nil {
 			slog.Error("websocket connect failed", "error", err, "backoff", backoff)
 			metrics.WebSocketReconnects.Inc()
+			timeoutCtxCancel()
 			goto retry
 		}
+
 		// Setup Scheduler
 		fc.setupScheduler(ctx)
 		// Start listening
