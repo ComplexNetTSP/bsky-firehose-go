@@ -89,6 +89,12 @@ func (s *Stream) setupSubscribers(ctx context.Context) error {
 			Description:   "Subscriber for posts events",
 			FilterSubject: fmt.Sprintf("%s.posts", s.StreamName),
 		},
+		{
+			Durable:       "follows_subscriber",
+			AckPolicy:     jetstream.AckExplicitPolicy,
+			Description:   "Subscriber for follows events",
+			FilterSubject: fmt.Sprintf("%s.follows", s.StreamName),
+		},
 	}
 
 	for _, jsConfig := range configs {

@@ -33,6 +33,8 @@ func Parse(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.CBOR
 		return NewRepost(evt, op, record)
 	case "app.bsky.feed.post":
 		return NewPost(evt, op, record)
+	case "app.bsky.graph.follow":
+		return NewFollow(evt, op, record)
 	default:
 		return nil, fmt.Errorf("unkown record type: %s", recordType)
 	}

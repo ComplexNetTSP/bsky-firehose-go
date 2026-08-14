@@ -97,9 +97,10 @@ func (bmh *BskyMessageHandler) HandleCommit(ctx context.Context, evt *comatproto
 
 func (bmh *BskyMessageHandler) sendNatsMessage(ctx context.Context, msg message.Message) error {
 	subjectMap := map[string]string{
-		"app.bsky.feed.like":   fmt.Sprintf("%s.likes", bmh.stream.StreamName),
-		"app.bsky.feed.repost": fmt.Sprintf("%s.reposts", bmh.stream.StreamName),
-		"app.bsky.feed.post":   fmt.Sprintf("%s.posts", bmh.stream.StreamName),
+		"app.bsky.feed.like":    fmt.Sprintf("%s.likes", bmh.stream.StreamName),
+		"app.bsky.feed.repost":  fmt.Sprintf("%s.reposts", bmh.stream.StreamName),
+		"app.bsky.feed.post":    fmt.Sprintf("%s.posts", bmh.stream.StreamName),
+		"app.bsky.graph.follow": fmt.Sprintf("%s.follows", bmh.stream.StreamName),
 	}
 
 	jsonData, err := json.Marshal(msg)
