@@ -33,12 +33,13 @@ func NewFollow(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.
 	}
 
 	message := &Follow{
-		Commit:  evt.Commit.String(),
-		Seq:     evt.Seq,
-		Time:    evt.Time,
-		Type:    "app.bsky.graph.follow",
-		Repo:    evt.Repo,
-		Subject: followRecord.Subject,
+		Commit:    evt.Commit.String(),
+		Seq:       evt.Seq,
+		Time:      evt.Time,
+		Type:      "app.bsky.graph.follow",
+		Repo:      evt.Repo,
+		CreatedAt: followRecord.CreatedAt,
+		Subject:   followRecord.Subject,
 	}
 	return message, nil
 }

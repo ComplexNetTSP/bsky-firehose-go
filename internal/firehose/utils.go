@@ -3,7 +3,6 @@ package firehose
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/vgauthier/bsky-firehose/internal/nats"
 )
@@ -25,7 +24,7 @@ func FetchLastMessageSequenceInJetStream(ctx context.Context, natsUrl string, st
 		return 0, err
 	}
 	if err := json.Unmarshal(message, &wrapper); err != nil {
-		return 0, fmt.Errorf("unable to unmarshal the last message in queue: %w", err)
+		return 0, err
 	}
 	return wrapper.Seq, nil
 }

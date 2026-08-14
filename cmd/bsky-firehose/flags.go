@@ -14,6 +14,7 @@ type CmdFlags struct {
 	StreamName   string
 	MaxStreamMsg int64
 	MetricsPort  string
+	LogLevel     string
 }
 
 func NewCmdFlags() *CmdFlags {
@@ -25,11 +26,17 @@ func NewCmdFlags() *CmdFlags {
 		StreamName:   "bsky_test",
 		MaxStreamMsg: 100000,
 		MetricsPort:  "9090",
+		LogLevel:     "INFO",
 	}
 
 	// Environment variable takes precedence over default
 	if envRelay := os.Getenv("BSKY_RELAY"); envRelay != "" {
 		cf.Relay = envRelay
+	}
+
+	// Environment variable takes precedence over default
+	if envLogLevel := os.Getenv("BSKY_LOGLEVEL"); envLogLevel != "" {
+		cf.LogLevel = envLogLevel
 	}
 
 	if envStream := os.Getenv("BSKY_NATS_STREAM_NAME"); envStream != "" {
@@ -75,9 +82,17 @@ func NewCmdFlags() *CmdFlags {
 	flag.StringVar(&cf.MetricsPort, "metrics-port", cf.MetricsPort, `The port to expose Prometheus metrics on.
 	Default: 9090
 	Env var: METRICS_PORT`)
+	flag.StringVar(&cf.LogLevel, "log-level", cf.LogLevel, `Log level
+	Default: INFO
+	Env var: BSKY_LOGLEVEL`)
 
 	// Parse the command-line flags
 	flag.Parse()
+
+	validLogLevels := map[string]bool{"DEBUG": true, "INFO": true, "WARN": true, "ERROR": true}
+	if !validLogLevels[cf.LogLevel] {
+		cf.LogLevel = "INFO"
+	}
 
 	// Customize flag.Usage to format multi-line descriptions
 	flag.Usage = func() {

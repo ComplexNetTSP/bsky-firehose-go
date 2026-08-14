@@ -3,7 +3,6 @@ package firehose
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/bluesky-social/indigo/events"
 	"github.com/bluesky-social/indigo/events/schedulers/sequential"
 	"github.com/gorilla/websocket"
+	"github.com/vgauthier/bsky-firehose/internal/logging"
 	"github.com/vgauthier/bsky-firehose/internal/metrics"
 )
 
@@ -40,14 +40,14 @@ func NewFirehoseConnection(ctx context.Context, bskyUrl string, handler *BskyMes
 
 // Connect establishes the WebSocket connection.
 func (fc *FirehoseConnection) connect(ctx context.Context, uri string) error {
-
-	slog.Info("dialing", "url", uri)
+	logger := logging.LoggerFromContext(ctx)
+	logger.Info("dialing", "url", uri, "func", "connection.connect")
 	timeoutCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 	conn, _, err := websocket.DefaultDialer.DialContext(timeoutCtx, uri, http.Header{})
 	if err != nil {
 		metrics.WebSocketConnectionStatus.Set(0)
-		return fmt.Errorf("websocket dial failed: %w", err)
+		return fmt.Errorf("connection.connect: websocket dial failed: %w", err)
 	}
 	fc.conn = conn
 	metrics.WebSocketConnectionStatus.Set(1)
@@ -55,8 +55,9 @@ func (fc *FirehoseConnection) connect(ctx context.Context, uri string) error {
 }
 
 // Close shuts down the connection.
-func (fc *FirehoseConnection) close() error {
-	slog.Warn("closing websocket connection and scheduler")
+func (fc *FirehoseConnection) close(ctx context.Context) error {
+	logger := logging.LoggerFromContext(ctx)
+	logger.Warn("closing websocket connection and scheduler", "func", "connection.close")
 	metrics.WebSocketConnectionStatus.Set(0)
 	if fc.cancel != nil {
 		fc.cancel()
@@ -85,12 +86,13 @@ func (fc *FirehoseConnection) setupScheduler(ctx context.Context) {
 }
 
 func (fc *FirehoseConnection) buildUrl(ctx context.Context) string {
+	logger := logging.LoggerFromContext(ctx)
 	lastSeq, err := FetchLastMessageSequenceInJetStream(ctx, fc.natsUrl, fc.streamName)
 	if err != nil {
-		slog.Error("failed to fetch last message sequence", "error", err)
+		logger.Error("failed to fetch last message sequence", "error", err, "func", "connection.buildUrl")
 	} else {
 		if lastSeq > fc.cursor {
-			slog.Info("updating cursor to last sequence", "lastSeq", lastSeq)
+			logger.Info("updating cursor to last sequence", "lastSeq", lastSeq, "func", "connection.buildUrl")
 			fc.cursor = lastSeq
 		}
 	}
@@ -102,12 +104,13 @@ func (fc *FirehoseConnection) buildUrl(ctx context.Context) string {
 
 // Start begins streaming events.
 func (fc *FirehoseConnection) start(ctx context.Context) error {
+	logger := logging.LoggerFromContext(ctx)
 	if fc.isRunning {
 		return nil
 	}
 
 	fc.isRunning = true
-	slog.Info("connected - streaming events (ctrl-C to stop)")
+	logger.Info("connected - streaming events (ctrl-C to stop)")
 	return events.HandleRepoStream(ctx, fc.conn, fc.scheduler, nil)
 }
 
@@ -117,6 +120,7 @@ func (fc *FirehoseConnection) Run(ctx context.Context) error {
 	maxBackoff := 15 * time.Minute
 	lastConnection := time.Now()
 	backoffResetDurection := 3 * maxBackoff
+	logger := logging.LoggerFromContext(ctx)
 	// Loop to handle reconnections
 	for {
 		uri := fc.buildUrl(ctx) // Update URL with current cursor
@@ -126,7 +130,7 @@ func (fc *FirehoseConnection) Run(ctx context.Context) error {
 		err := fc.connect(timeoutCtx, uri)
 		timeoutCtxCancel()
 		if err != nil {
-			slog.Error("websocket connect failed", "error", err, "backoff", backoff)
+			logger.Error("websocket connect failed", "error", err, "backoff", backoff, "func", "connection.Run")
 			metrics.WebSocketReconnects.Inc()
 			timeoutCtxCancel()
 			goto retry
@@ -135,11 +139,11 @@ func (fc *FirehoseConnection) Run(ctx context.Context) error {
 		// Setup Scheduler
 		fc.setupScheduler(ctx)
 		// Start listening
-		slog.Info("streaming events")
+		logger.Info("start listening streaming events", "func", "connection.Run")
 		if err := fc.start(ctx); err != nil {
 			fc.isRunning = false
-			slog.Error("stream ended", "error", err)
-			fc.close()
+			logger.Error("stream ended", "error", err, "func", "connection.Run")
+			fc.close(ctx)
 			metrics.WebSocketReconnects.Inc()
 			goto retry
 		}
@@ -161,7 +165,7 @@ func (fc *FirehoseConnection) Run(ctx context.Context) error {
 				backoff = maxBackoff
 			}
 			lastConnection = time.Now()
-			slog.Info("retrying websocket connection after backoff period", "backoff", backoff)
+			logger.Info("retrying websocket connection after backoff period", "backoff", backoff, "func", "connection.Run")
 		}
 	}
 }
