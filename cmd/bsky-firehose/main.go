@@ -24,7 +24,7 @@ func main() {
 	// logger
 	logger := logging.NewLogger(cf.LogLevel)
 	ctx = logging.ContextWithLogger(ctx, logger)
-
+	logger.Info("logger started", "log-level", cf.LogLevel)
 	// initialize metrics
 	metrics.Init()
 	metrics.StartServer(cf.MetricsPort)
@@ -37,7 +37,7 @@ func main() {
 		logger.Error("failed to connect to nats server", "error", err, "func", "main")
 		log.Fatal(err)
 	}
-	defer natsStream.Close()
+	defer natsStream.Close(ctx)
 
 	//setup message handler
 	handler := firehose.NewBskyMessageHandler(natsStream)

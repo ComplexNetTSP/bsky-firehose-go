@@ -15,6 +15,7 @@ services:
       - BSKY_NATS_STREAM_NAME=bluesky
       - BSKY_NATS_MAX_STREAM_MSG=500000
       - BSKY_METRICS_PORT=9090
+      - BSKY_LOGLEVEL=INFO
       - TZ=Europe/Paris
     volumes:
       - /etc/localtime:/etc/localtime:ro

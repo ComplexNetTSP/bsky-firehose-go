@@ -3,7 +3,6 @@ package firehose
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"time"
@@ -107,7 +106,7 @@ func (bmh *BskyMessageHandler) sendNatsMessage(ctx context.Context, msg message.
 		"app.bsky.graph.follow": fmt.Sprintf("%s.follows", bmh.stream.StreamName),
 	}
 
-	jsonData, err := json.Marshal(msg)
+	jsonData, err := msg.Json()
 	if err != nil {
 		logger.Error("unable to marshal bluesky message", "error", err, "func", "handler.sendNatsMessage")
 		metrics.ProcessingErrors.WithLabelValues("marshal").Inc()
@@ -117,7 +116,7 @@ func (bmh *BskyMessageHandler) sendNatsMessage(ctx context.Context, msg message.
 	slog.Debug("Message", "msg", jsonData)
 
 	if subject, ok := subjectMap[msg.MessageType()]; ok {
-		if err = bmh.stream.Publish(ctx, subject, []byte(jsonData)); err != nil {
+		if err = bmh.stream.Publish(ctx, subject, jsonData); err != nil {
 			metrics.PublishErrors.WithLabelValues(subject).Inc()
 			return err
 		}

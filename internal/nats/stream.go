@@ -3,11 +3,11 @@ package nats
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
+	"github.com/vgauthier/bsky-firehose/internal/logging"
 	"github.com/vgauthier/bsky-firehose/internal/metrics"
 )
 
@@ -105,8 +105,9 @@ func (s *Stream) setupSubscribers(ctx context.Context) error {
 	return nil
 }
 
-func (s *Stream) Close() {
-	slog.Warn("closing nats stream and connection")
+func (s *Stream) Close(ctx context.Context) {
+	logger := logging.LoggerFromContext(ctx)
+	logger.Warn("closing nats stream and connection", "func", "stream.Close")
 	metrics.NATSConnectionStatus.Set(0)
 	s.nc.Close()
 }

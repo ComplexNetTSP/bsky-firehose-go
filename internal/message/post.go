@@ -32,6 +32,10 @@ func (p *Post) GetSeq() int64 {
 	return p.Seq
 }
 
+func (p *Post) Json() ([]byte, error) {
+	return json.Marshal(p)
+}
+
 func NewPost(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.CBORMarshaler) (*Post, error) {
 	postRecord, ok := record.(*appbsky.FeedPost)
 	if !ok {

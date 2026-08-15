@@ -30,6 +30,10 @@ func (r *Repost) GetSeq() int64 {
 	return r.Seq
 }
 
+func (r *Repost) Json() ([]byte, error) {
+	return json.Marshal(r)
+}
+
 func NewRepost(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.CBORMarshaler) (*Repost, error) {
 	repostRecord, ok := record.(*appbsky.FeedRepost)
 	if !ok {

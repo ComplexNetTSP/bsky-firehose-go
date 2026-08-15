@@ -1,6 +1,7 @@
 package message
 
 import (
+	"encoding/json"
 	"fmt"
 
 	comatproto "github.com/bluesky-social/indigo/api/atproto"
@@ -18,12 +19,16 @@ type Follow struct {
 	Type      string `json:"type"`
 }
 
-func (p *Follow) MessageType() string {
-	return p.Type
+func (f *Follow) MessageType() string {
+	return f.Type
 }
 
-func (p *Follow) GetSeq() int64 {
-	return p.Seq
+func (f *Follow) GetSeq() int64 {
+	return f.Seq
+}
+
+func (f *Follow) Json() ([]byte, error) {
+	return json.Marshal(f)
 }
 
 func NewFollow(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.CBORMarshaler) (*Follow, error) {

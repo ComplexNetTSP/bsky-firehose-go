@@ -30,6 +30,10 @@ func (l *Like) GetSeq() int64 {
 	return l.Seq
 }
 
+func (l *Like) Json() ([]byte, error) {
+	return json.Marshal(l)
+}
+
 func NewLike(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.CBORMarshaler) (*Like, error) {
 	repostRecord, ok := record.(*appbsky.FeedLike)
 	if !ok {

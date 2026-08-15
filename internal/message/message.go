@@ -11,6 +11,7 @@ import (
 type Message interface {
 	MessageType() string
 	GetSeq() int64
+	Json() ([]byte, error)
 }
 
 type Op struct {
