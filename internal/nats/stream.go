@@ -30,10 +30,16 @@ func NewStream(natsUrl string, streamName string, maxStreamMsg int64) *Stream {
 
 func (s *Stream) Connect(ctx context.Context) error {
 	var err error
-	s.nc, err = nats.Connect(s.nats_server)
+	opts := nats.Options{
+		Url:            s.nats_server,
+		AllowReconnect: true,
+		MaxReconnect:   3,
+		Timeout:        200 * time.Millisecond,
+	}
+	s.nc, err = opts.Connect()
 	if err != nil {
 		metrics.NATSConnectionStatus.Set(0)
-		return fmt.Errorf("unable to connect to nats server at url: %s", s.nats_server)
+		return fmt.Errorf("unable to connect to nats server at url: %s with error: %s", s.nats_server, err)
 	}
 
 	s.jetstream, err = jetstream.New(s.nc)
