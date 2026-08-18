@@ -35,14 +35,25 @@ func (l *Like) Json() ([]byte, error) {
 }
 
 func NewLike(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.CBORMarshaler) (*Like, error) {
-	repostRecord, ok := record.(*appbsky.FeedLike)
+	likeRecord, ok := record.(*appbsky.FeedLike)
 	if !ok {
 		return nil, fmt.Errorf("record is not a FeedLike, got %T", record)
 	}
 
-	viaJSON, err := json.Marshal(repostRecord.Via)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal via: %w", err)
+	var viaJSON []byte
+	var err error
+	if likeRecord.Via != nil {
+		viaJSON, err = json.Marshal(likeRecord.Via)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal via: %w", err)
+		}
+	}
+
+	var cid string
+	var uri string
+	if likeRecord.Subject != nil {
+		cid = likeRecord.Subject.Cid
+		uri = likeRecord.Subject.Uri
 	}
 
 	like := &Like{
@@ -50,9 +61,9 @@ func NewLike(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.CB
 		Time:       evt.Time,
 		Repo:       evt.Repo,
 		Rkey:       op.Path,
-		SubjectUri: repostRecord.Subject.Uri,
-		SubjectCid: repostRecord.Subject.Cid,
-		CreatedAt:  repostRecord.CreatedAt,
+		SubjectUri: uri,
+		SubjectCid: cid,
+		CreatedAt:  likeRecord.CreatedAt,
 		Via:        viaJSON,
 		Commit:     evt.Commit.String(),
 		Type:       "app.bsky.feed.like",

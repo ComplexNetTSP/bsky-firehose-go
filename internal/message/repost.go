@@ -40,9 +40,20 @@ func NewRepost(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.
 		return nil, fmt.Errorf("record is not a FeedRepost, got %T", record)
 	}
 
-	viaJSON, err := json.Marshal(repostRecord.Via)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal via: %w", err)
+	var viaJSON []byte
+	var err error
+	if repostRecord.Via != nil {
+		viaJSON, err = json.Marshal(repostRecord.Via)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal via: %w", err)
+		}
+	}
+
+	var cid string
+	var uri string
+	if repostRecord.Subject != nil {
+		cid = repostRecord.Subject.Cid
+		uri = repostRecord.Subject.Uri
 	}
 
 	repost := &Repost{
@@ -50,8 +61,8 @@ func NewRepost(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.
 		Time:       evt.Time,
 		Repo:       evt.Repo,
 		Rkey:       op.Path,
-		SubjectUri: repostRecord.Subject.Uri,
-		SubjectCid: repostRecord.Subject.Cid,
+		SubjectUri: uri,
+		SubjectCid: cid,
 		CreatedAt:  repostRecord.CreatedAt,
 		Via:        viaJSON,
 		Commit:     evt.Commit.String(),

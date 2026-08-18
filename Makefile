@@ -11,6 +11,10 @@ fmt: ## Format Go source code
 	@echo "Formatting code..."
 	gofmt -w .
 
+test: ## Run all Go tests
+	@echo "Running tests..."
+	go test ./...
+
 build: 
 	mkdir -p out/
 	@echo "Building $(APP_NAME)..."
@@ -25,6 +29,5 @@ run:
 clean: ## cleans binary and other generated files
 	go clean
 	rm -rf out/
-	rm -f coverage*.out
 
 .PHONY: all build run vet tidy clean

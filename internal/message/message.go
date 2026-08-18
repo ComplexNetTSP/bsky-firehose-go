@@ -1,6 +1,7 @@
 package message
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -22,6 +23,10 @@ type Op struct {
 
 // buildMessage constructs a BskyMessage from processed data
 func Parse(evt *comatproto.SyncSubscribeRepos_Commit, op Op, record typegen.CBORMarshaler) (Message, error) {
+	nilCommitMessage := errors.New("nil commit message")
+	if evt == nil {
+		return nil, nilCommitMessage
+	}
 	recordType, err := getRecordType(op)
 	if err != nil {
 		return nil, err
