@@ -76,6 +76,11 @@ make build
 |------|-------------|----------|---------|--------------------|
 | `-relay` | Bluesky WebSocket relay host (without protocol) | Yes | `bsky.network` | `BSKY_RELAY` |
 | `-nats` | NATS server URL | Yes | - | `BSKY_NATS` |
+| `-debug` | Enable debug logging | No | `false` | `BSKY_DEBUG` |
+| `-log-format` | Log output format (text/json) | No | `text` | `BSKY_LOG_FORMAT` |
+| `-stream-name` | NATS JetStream stream name | No | `bsky_test` | `BSKY_STREAM_NAME` |
+| `-max-messages` | Maximum messages in NATS stream | No | `100000` | `BSKY_MAX_MESSAGES` |
+| `-reconnect-interval` | WebSocket reconnect interval (seconds) | No | `30` | `BSKY_RECONNECT_INTERVAL` |
 
 > **Note**: The relay URL is constructed as `wss://{relay}/xrpc/com.atproto.sync.subscribeRepos`
 
@@ -145,17 +150,22 @@ bsky-firehose/
 ├── go.mod                          # Go module definition
 ├── go.sum                          # Dependency checksums
 ├── Makefile                       # Build automation
+├── Dockerfile                     # Docker configuration
 ├── cmd/
 │   └── bsky-firehose/
 │       ├── main.go                # Application entry point with graceful shutdown
 │       └── flags.go               # CLI flags and environment variable parsing
-└── internal/
-    ├── firehose/
-    │   ├── connection.go           # WebSocket connection management to Bluesky
-    │   ├── handler.go              # Message processing and NATS publishing
-    │   └── message.go              # Data structures (Op, BskyMessage)
-    └── nats/
-        └── stream.go               # NATS JetStream client wrapper
+├── internal/
+│   ├── firehose/
+│   │   ├── connection.go           # WebSocket connection management to Bluesky
+│   │   ├── handler.go              # Message processing and NATS publishing
+│   │   └── message.go              # Data structures (Op, BskyMessage)
+│   └── nats/
+│       └── stream.go               # NATS JetStream client wrapper
+└── pkg/
+    └── config/                  # Configuration utilities
+        ├── config.go               # Configuration loading and validation
+        └── types.go                # Configuration data types
 ```
 
 ---
