@@ -25,6 +25,7 @@ func main() {
 	logger := logging.NewLogger(cf.LogLevel)
 	ctx = logging.ContextWithLogger(ctx, logger)
 	logger.Info("logger started", "log-level", cf.LogLevel)
+
 	// initialize metrics
 	metrics.Init()
 	metrics.StartServer(cf.MetricsPort)

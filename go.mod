@@ -5,6 +5,7 @@ go 1.26.5
 require (
 	github.com/bluesky-social/indigo v0.0.0-20260730171912-8b43a326dbbb
 	github.com/gorilla/websocket v1.5.3
+	github.com/ipfs/go-cid v0.6.2
 	github.com/nats-io/nats.go v1.52.0
 	github.com/prometheus/client_golang v1.24.1
 	github.com/whyrusleeping/cbor-gen v0.3.1
@@ -29,7 +30,6 @@ require (
 	github.com/ipfs/bbloom v0.1.0 // indirect
 	github.com/ipfs/boxo v0.42.1 // indirect
 	github.com/ipfs/go-block-format v0.2.4 // indirect
-	github.com/ipfs/go-cid v0.6.2 // indirect
 	github.com/ipfs/go-cidutil v0.1.2 // indirect
 	github.com/ipfs/go-datastore v0.9.2 // indirect
 	github.com/ipfs/go-dsqueue v0.2.0 // indirect
