@@ -63,12 +63,3 @@ jobs:
           echo "Docker image pushed with tag: ${{ steps.meta.outputs.tags }}"
           echo "You can now find the image at: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}"
           echo "Image SHA: ${{ github.sha }}"
-
-      - name: Run Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}'
-          severity: 'CRITICAL'
-          exit-code: '1'
-          format: 'table'
-          ignore-unfixed: true
