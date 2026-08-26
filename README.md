@@ -4,6 +4,8 @@
 [![Bluesky](https://img.shields.io/badge/bluesky-AT%20Protocol-0085FF?style=flat-square)](https://atproto.com/)
 [![NATS](https://img.shields.io/badge/nats-io-4285F4?style=flat-square)](https://nats.io/)
 
+**Author**: Vincent Gauthier <vincent.gauthier@telecom-sudparis.eu>
+
 **A real-time bridge that consumes the Bluesky AT Protocol firehose and publishes events to NATS topics.**
 
 ---
