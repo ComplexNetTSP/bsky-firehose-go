@@ -3,7 +3,8 @@
 [![Go Version](https://img.shields.io/badge/go-1.21+-00ADD8?style=flat-square&logo=go)](https://go.dev/)
 [![Bluesky](https://img.shields.io/badge/bluesky-AT%20Protocol-0085FF?style=flat-square)](https://atproto.com/)
 [![NATS](https://img.shields.io/badge/nats-io-4285F4?style=flat-square)](https://nats.io/)
-[![Build Status](https://github.com/ComplexNetTSP/bsky-firehose-go/actions/workflows/go-test.yml/badge.svg)](https://github.com/ComplexNetTSP/bsky-firehose-go/actions/workflows/go-test.yml)
+[![Go Test](https://github.com/ComplexNetTSP/bsky-firehose-go/actions/workflows/go-test.yml/badge.svg)](https://github.com/ComplexNetTSP/bsky-firehose-go/actions/workflows/go-test.yml)
+[![Build and Push Docker Image](https://github.com/ComplexNetTSP/bsky-firehose-go/actions/workflows/docker-build-publish.yml/badge.svg)](https://github.com/ComplexNetTSP/bsky-firehose-go/actions/workflows/docker-build-publish.yml)
 
 **Author**: Vincent Gauthier <vincent.gauthier@telecom-sudparis.eu>
 
