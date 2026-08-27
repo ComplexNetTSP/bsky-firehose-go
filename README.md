@@ -147,37 +147,6 @@ docker run \
 
 ---
 
-## 📁 Project Structure
-
-```
-bsky-firehose/
-├── .github/
-│   └── workflows/
-│       ├── docker-build-publish.yml  # Docker image build and push workflow
-│       └── go-test.yml              # Go test and coverage workflow
-├── go.mod                          # Go module definition
-├── go.sum                          # Dependency checksums
-├── Makefile                       # Build automation
-├── Dockerfile                     # Docker configuration
-├── cmd/
-│   └── bsky-firehose/
-│       ├── main.go                # Application entry point with graceful shutdown
-│       └── flags.go               # CLI flags and environment variable parsing
-├── internal/
-│   ├── firehose/
-│   │   ├── connection.go           # WebSocket connection management to Bluesky
-│   │   ├── handler.go              # Message processing and NATS publishing
-│   │   └── message.go              # Data structures (Op, BskyMessage)
-│   └── nats/
-│       └── stream.go               # NATS JetStream client wrapper
-└── pkg/
-    └── config/                  # Configuration utilities
-        ├── config.go               # Configuration loading and validation
-        └── types.go                # Configuration data types
-```
-
----
-
 ## 🔧 Development
 
 ### Makefile Targets
