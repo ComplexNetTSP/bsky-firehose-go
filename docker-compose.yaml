@@ -1,8 +1,6 @@
 services:
   bsky-producer:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: docker pull ghcr.io/complexnettsp/bsky-firehose-go:0.1
     container_name: firehose
     restart: unless-stopped
     ports:
@@ -23,5 +21,3 @@ services:
 networks:
   maverick:
     external: true
-
-
