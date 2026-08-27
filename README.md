@@ -151,6 +151,10 @@ docker run \
 
 ```
 bsky-firehose/
+├── .github/
+│   └── workflows/
+│       ├── docker-build-publish.yml  # Docker image build and push workflow
+│       └── go-test.yml              # Go test and coverage workflow
 ├── go.mod                          # Go module definition
 ├── go.sum                          # Dependency checksums
 ├── Makefile                       # Build automation
