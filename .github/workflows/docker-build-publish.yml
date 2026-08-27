@@ -1,4 +1,5 @@
 # This workflow will build and push a Docker image to GitHub Container Registry (GHCR) on pushes to the main branch or when a tag is pushed.
+
 name: Build and Push Docker Image
 
 on:
@@ -10,7 +11,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository | lower }}
 
 jobs:
   build-and-push:
@@ -24,6 +24,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Set lowercase image name
+        run: |
+          # Extract the repository name without the organization prefix
+          REPO_NAME=${{ github.event.repository.name | lower }}
+          echo "IMAGE_NAME=$REPO_NAME" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -67,10 +73,10 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/git/refs/tags" | \
             jq -r '.[] | select(.ref | test("^refs/tags/v")) | .ref' | \
             sed 's|refs/tags/||')
-
+          
           # Get the latest version tag
           LATEST_VERSION_TAG=$(echo "$VERSION_TAGS" | sort -Vr | head -n 1)
-
+          
           if [ "$LATEST_VERSION_TAG" != "${{ github.ref_name }}" ]; then
             echo "Updating 'latest' tag to point to the latest version tag: $LATEST_VERSION_TAG"
             docker buildx imagetools create \
@@ -85,3 +91,13 @@ jobs:
         run: |
           echo "Docker image pushed with tag: ${{ steps.meta.outputs.tags }}"
           echo "You can find the image at: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+
+      - name: Run Trivy vulnerability scan
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}'
+          severity: 'CRITICAL'
+          exit-code: '1'
+          format: 'table'
+          ignore-unfixed: true
