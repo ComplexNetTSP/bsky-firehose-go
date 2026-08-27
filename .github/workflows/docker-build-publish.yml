@@ -44,7 +44,9 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha
+            # Use the tag name if this is a tag push
+            ${{ github.ref_type == 'tag' && format('{0}', github.ref_name) || '' }}
+
 
       - name: Build and push
         uses: docker/build-push-action@v4
