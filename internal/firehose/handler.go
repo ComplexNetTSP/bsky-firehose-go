@@ -61,8 +61,9 @@ func (bmh *BskyMessageHandler) HandleCommit(ctx context.Context, evt *comatproto
 	metrics.CurrentSequence.Set(float64(evt.Seq))
 	r, err := bmh.readRepoFromCar(ctx, evt.Blocks)
 	if err != nil {
+		// error reading CAR blocks, skip processing the next message
 		metrics.ProcessingErrors.WithLabelValues("car_read").Inc()
-		return err
+		return nil
 	}
 	//since, prevData := bmh.extractOptionalFields(evt)
 	for _, op := range evt.Ops {

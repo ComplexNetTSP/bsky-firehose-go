@@ -119,7 +119,7 @@ func (fc *FirehoseConnection) Run(ctx context.Context) error {
 	backoff := time.Second
 	maxBackoff := 15 * time.Minute
 	lastConnection := time.Now()
-	backoffResetDurection := 3 * maxBackoff
+	backoffResetDuration := 3 * maxBackoff
 	logger := logging.LoggerFromContext(ctx)
 	// Loop to handle reconnections
 	for {
@@ -154,7 +154,7 @@ func (fc *FirehoseConnection) Run(ctx context.Context) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-time.After(backoff):
-			if time.Since(lastConnection) > backoffResetDurection {
+			if time.Since(lastConnection) > backoffResetDuration {
 				// reset backoff if the since last reconnect is large enough
 				backoff = time.Second
 			} else if backoff < maxBackoff {
