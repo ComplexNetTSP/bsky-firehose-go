@@ -1,6 +1,7 @@
 services:
   bsky-producer:
-    image: docker pull ghcr.io/complexnettsp/bsky-firehose-go:0.1
+    build:
+      dockerfile: ./Dockerfile
     container_name: firehose
     restart: unless-stopped
     ports:
@@ -8,13 +9,13 @@ services:
     networks:
       - maverick
     environment:
-      - BSKY_RELAY=relay1.us-east.bsky.network
+      - BSKY_RELAY=relay1.us-west.bsky.network
       - BSKY_NATS_SERVER=nats-server:4222
       - BSKY_NATS_STREAM_NAME=bluesky
       - BSKY_NATS_MAX_STREAM_MSG=500000
       - BSKY_METRICS_PORT=9090
       - BSKY_LOGLEVEL=INFO
-      - TZ=Europe/Paris
+      - TZ=Europe/Paris- GITHUB_USERNAME=complexnettsp
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
